@@ -1,2 +1,2 @@
 # tic-tac-toe-robot
-school project
+repository for a school project in HMU
