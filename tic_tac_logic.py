@@ -1,2 +1,3 @@
 #this is the main logic for the robotic opponent
 #fnfnf
+print("kati")
