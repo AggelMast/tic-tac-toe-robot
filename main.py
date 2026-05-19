@@ -24,6 +24,9 @@ def main():
     detector = BoardDetector()
 
     print("=== Tic Tac Toe Robot Started ===")
+    print("SPACE -> capture move")
+    print("R -> reset")
+    print("Q -> quit")
 
     robot_busy = False
     last_robot_time = 0
@@ -43,68 +46,74 @@ def main():
             if current_time - last_robot_time > ROBOT_BUSY_DELAY:
                 robot_busy = False
 
-            cv2.imshow("Game", frame)
-
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
-
-            continue
-
-        # Detect human move
-        new_move = detector.detect_new_move(frame)
-
-        if new_move is not None:
-
-            print(f"Human move: {new_move}")
-
-            try:
-
-                robot_move = process_user_move(new_move)
-
-                status = game_status()
-
-                print(f"Game status: {status}")
-
-                if robot_move is not None:
-
-                    robot_busy = True
-                    last_robot_time = time.time()
-
-                    draw_o(robot_move)
-
-                    print(f"Robot played: {robot_move}")
-
-                if status != "in_progress":
-
-                    print("Game finished")
-
-                    time.sleep(3)
-
-                    reset_board()
-
-                    detector.previous_board_state = [0] * 9
-
-                    print("New game started")
-
-            except Exception as e:
-                print(f"Error: {e}")
-
-        # Visualization
+        # Draw grid
         display = detector.draw_grid(frame)
 
         cv2.imshow("Game", display)
 
         key = cv2.waitKey(1)
 
+        # Quit
         if key & 0xFF == ord('q'):
             break
 
+        # Reset
         if key & 0xFF == ord('r'):
 
             reset_board()
             detector.previous_board_state = [0] * 9
 
             print("Manual reset")
+
+        # Capture screenshot for move detection
+        if key & 0xFF == ord(' '):
+
+            print("Capturing board...")
+            
+            time.sleep(0.5)
+
+            snapshot = frame.copy()
+
+            try:
+
+                new_move = detector.detect_new_move(snapshot)
+
+                if new_move is not None:
+
+                    print(f"Human move: {new_move}")
+
+                    robot_move = process_user_move(new_move)
+
+                    status = game_status()
+
+                    print(f"Game status: {status}")
+
+                    if robot_move is not None:
+
+                        robot_busy = True
+                        last_robot_time = time.time()
+
+                        draw_o(robot_move)
+
+                        print(f"Robot played: {robot_move}")
+
+                    if status != "in_progress":
+
+                        print("Game finished")
+
+                        time.sleep(3)
+
+                        reset_board()
+
+                        detector.previous_board_state = [0] * 9
+
+                        print("New game started")
+
+                else:
+                    print("No new move detected")
+
+            except Exception as e:
+                print(f"Error: {e}")
 
     cap.release()
     cv2.destroyAllWindows()

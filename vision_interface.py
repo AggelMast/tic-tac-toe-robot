@@ -75,21 +75,22 @@ class BoardDetector:
         return (x, y, w, h)
 
     def get_cell_state(self, cell_roi: np.ndarray) -> int:
-        """Analyze a cell ROI and return its state: 0=empty, 1=X, 2=O."""
-        hsv_cell = cv2.cvtColor(cell_roi, cv2.COLOR_BGR2HSV)
 
-        x_mask = cv2.inRange(hsv_cell, X_LOWER_HSV, X_UPPER_HSV)
-        o_mask = cv2.inRange(hsv_cell, O_LOWER_HSV, O_UPPER_HSV)
+        gray = cv2.cvtColor(cell_roi, cv2.COLOR_BGR2GRAY)
 
-        x_pixels = cv2.countNonZero(x_mask)
-        o_pixels = cv2.countNonZero(o_mask)
+        # blur
+        blur = cv2.GaussianBlur(gray, (5, 5), 0)
+
+        # threshold for dark marker
+        _, thresh = cv2.threshold(blur, 100, 255, cv2.THRESH_BINARY_INV)
+
+        pixels = cv2.countNonZero(thresh)
 
         threshold = (cell_roi.shape[0] * cell_roi.shape[1]) * 0.05
 
-        if x_pixels > threshold:
+        if pixels > threshold:
             return 1
-        if o_pixels > threshold:
-            return 2
+
         return 0
 
     def detect_board_state(self, frame: np.ndarray) -> list[int]:
