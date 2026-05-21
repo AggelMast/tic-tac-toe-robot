@@ -95,6 +95,8 @@ def main():
 
                         draw_o(robot_move)
 
+                        detector.register_robot_move(robot_move)
+
                         print(f"Robot played: {robot_move}")
 
                     if status != "in_progress":
@@ -105,7 +107,8 @@ def main():
 
                         reset_board()
 
-                        detector.previous_board_state = [0] * 9
+                        #detector.previous_board_state = [0] * 9
+                        detector.reset()
 
                         print("New game started")
 
