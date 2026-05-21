@@ -7,13 +7,47 @@ from tic_tac_logic import (
     game_status,
     reset_board,
 )
+from robodk_controller import(move_home)
 
 from robodk_controller import draw_o
 
+
 ROBOT_BUSY_DELAY = 2.0
+
+# False = camera mode
+# True = keyboard mode
+USE_KEYBOARD_INPUT = False
+
+
+# ==========================================
+# MANUAL KEYBOARD INPUT
+# ==========================================
+def get_keyboard_move(detector):
+
+    while True:
+
+        try:
+            move = int(input("Enter human move (1-9): "))
+
+            if move < 1 or move > 9:
+                print("Move must be between 1 and 9")
+                continue
+
+            if move in detector.used_cells:
+                print("Cell already used")
+                continue
+
+            detector.used_cells.add(move)
+
+            return move
+
+        except ValueError:
+            print("Please enter a valid number")
 
 
 def main():
+
+    global USE_KEYBOARD_INPUT
 
     cap = cv2.VideoCapture(0)
 
@@ -22,9 +56,13 @@ def main():
         return
 
     detector = BoardDetector()
+    
+    move_home()
 
     print("=== Tic Tac Toe Robot Started ===")
     print("SPACE -> capture move")
+    print("K -> keyboard mode")
+    print("C -> camera mode")
     print("R -> reset")
     print("Q -> quit")
 
@@ -61,23 +99,50 @@ def main():
         if key & 0xFF == ord('r'):
 
             reset_board()
-            detector.previous_board_state = [0] * 9
+
+            detector.reset()
 
             print("Manual reset")
 
-        # Capture screenshot for move detection
+        # Keyboard mode
+        if key & 0xFF == ord('k'):
+
+            USE_KEYBOARD_INPUT = True
+
+            print("Keyboard input mode enabled")
+
+        # Camera mode
+        if key & 0xFF == ord('c'):
+
+            USE_KEYBOARD_INPUT = False
+
+            print("Camera detection mode enabled")
+
+        # Capture move
         if key & 0xFF == ord(' '):
 
             print("Capturing board...")
-            
+
             time.sleep(0.5)
 
             snapshot = frame.copy()
 
             try:
 
-                new_move = detector.detect_new_move(snapshot)
+                # ==========================================
+                # INPUT SOURCE
+                # ==========================================
+                if USE_KEYBOARD_INPUT:
 
+                    new_move = get_keyboard_move(detector)
+
+                else:
+
+                    new_move = detector.detect_new_move(snapshot)
+
+                # ==========================================
+                # PROCESS MOVE
+                # ==========================================
                 if new_move is not None:
 
                     print(f"Human move: {new_move}")
@@ -107,15 +172,16 @@ def main():
 
                         reset_board()
 
-                        #detector.previous_board_state = [0] * 9
                         detector.reset()
 
                         print("New game started")
 
                 else:
+
                     print("No new move detected")
 
             except Exception as e:
+
                 print(f"Error: {e}")
 
     cap.release()

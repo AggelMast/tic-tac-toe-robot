@@ -27,7 +27,7 @@ CELL_TARGETS = {
 
 
 def move_home():
-    robot.MoveJ(HOME)
+    robot.MoveL(HOME)
 
 
 def draw_o(cell: int):
@@ -49,7 +49,8 @@ def draw_o(cell: int):
     print(f"Robot drawing O at cell {cell}")
 
     # Safe approach
-    robot.MoveJ(approach)
+    print("approach:", approach)
+    robot.MoveL(approach)
 
     # Move to drawing position
     robot.MoveL(draw)
