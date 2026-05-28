@@ -49,7 +49,7 @@ def main():
 
     global USE_KEYBOARD_INPUT
 
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
 
     if not cap.isOpened():
         print("Cannot open camera")
@@ -68,6 +68,7 @@ def main():
 
     robot_busy = False
     last_robot_time = 0
+    
 
     while True:
 
