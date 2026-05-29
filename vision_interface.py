@@ -102,7 +102,7 @@ class BoardDetector:
 
         print("Percentage:", percentage)
 
-        if percentage > 0.12:
+        if percentage > 0.08:
             return 1
 
         return 0
