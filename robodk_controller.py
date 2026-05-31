@@ -6,8 +6,8 @@ RDK = Robolink()
 
 robot = RDK.Item('', ITEM_TYPE_ROBOT)
 
-#RDK.setRunMode(RUNMODE_SIMULATE)
-RDK.setRunMode(RUNMODE_RUN_ROBOT)
+RDK.setRunMode(RUNMODE_SIMULATE)
+#RDK.setRunMode(RUNMODE_RUN_ROBOT)
 
 if not robot.Valid():
     raise Exception("Robot not found in RoboDK")
